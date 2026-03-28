@@ -304,7 +304,7 @@ app.post('/api/analyze-link', async (req: any, res: any) => {
     }
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: "gemini-3-flash-preview",
       contents: `Você é um especialista em extração de dados.
 Você recebeu o seguinte link do Google Maps: ${url}
 ${placeNameHint ? `\nDica: O nome do estabelecimento extraído da URL parece ser "${placeNameHint}".` : ''}
@@ -318,25 +318,22 @@ Sua missão é OBRIGATÓRIA:
 6. Crie uma DESCRIÇÃO detalhada do negócio.
 7. Liste os principais serviços oferecidos (ou que fazem sentido para o nicho), separados por vírgula.
 
-NÃO INVENTE DADOS. Se não souber ou não encontrar o local exato, retorne success: false.`,
+NÃO INVENTE DADOS. Se não souber ou não encontrar o local exato, retorne success: false.
+RESPONDA APENAS COM UM OBJETO JSON VÁLIDO. Não inclua blocos de código markdown (\`\`\`json).
+O JSON deve ter a seguinte estrutura:
+{
+  "success": true/false,
+  "errorMessage": "Mensagem de erro amigável se success for false",
+  "name": "Nome da empresa",
+  "phone": "Telefone com DDD, apenas números",
+  "address": "Endereço completo",
+  "city": "Cidade e Estado",
+  "description": "Descrição do negócio",
+  "services": "Lista de serviços separados por vírgula"
+}`,
       config: {
         tools: [{ googleSearch: {} }],
-        toolConfig: { includeServerSideToolInvocations: true },
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            success: { type: Type.BOOLEAN, description: "True se encontrou o estabelecimento exato, False se não conseguiu ou se o link for inválido" },
-            errorMessage: { type: Type.STRING, description: "Mensagem de erro amigável se success for false" },
-            name: { type: Type.STRING, description: "Nome da empresa" },
-            phone: { type: Type.STRING, description: "Telefone com DDD, apenas números" },
-            address: { type: Type.STRING, description: "Endereço completo" },
-            city: { type: Type.STRING, description: "Cidade e Estado" },
-            description: { type: Type.STRING, description: "Descrição do negócio" },
-            services: { type: Type.STRING, description: "Lista de serviços separados por vírgula" },
-          },
-          required: ["success"]
-        }
+        toolConfig: { includeServerSideToolInvocations: true }
       }
     });
 
