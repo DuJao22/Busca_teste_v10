@@ -53,16 +53,29 @@ export default function CreateSite() {
       }
 
       // 2. Get API Key from settings or environment
-      const settingsRes = await fetch('/api/settings', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      let apiKey = '';
       
-      let apiKey = process.env.GEMINI_API_KEY; // Primary source from vite.config.ts
+      try {
+        const settingsRes = await fetch('/api/settings', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        if (settingsRes.ok) {
+          const settings = await settingsRes.json();
+          if (settings.gemini_api_key) {
+            apiKey = settings.gemini_api_key;
+            console.log("Using API key from database settings");
+          }
+        }
+      } catch (e) {
+        console.error("Error fetching settings:", e);
+      }
       
-      if (settingsRes.ok) {
-        const settings = await settingsRes.json();
-        if (settings.gemini_api_key) {
-          apiKey = settings.gemini_api_key;
+      if (!apiKey) {
+        // Fallback to environment variable
+        apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || '';
+        if (apiKey) {
+          console.log("Using API key from environment variables");
         }
       }
 

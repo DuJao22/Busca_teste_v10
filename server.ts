@@ -273,7 +273,7 @@ app.post('/api/analyze-link', async (req: any, res: any) => {
 
   try {
     // Get Gemini API Key
-    let geminiApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
+    let geminiApiKey = '';
     const settings = db.prepare('SELECT key, value FROM settings').all() as any[];
     const settingsMap = settings.reduce((acc, curr) => {
       acc[curr.key] = curr.value;
@@ -282,6 +282,14 @@ app.post('/api/analyze-link', async (req: any, res: any) => {
 
     if (settingsMap.gemini_api_key) {
       geminiApiKey = settingsMap.gemini_api_key;
+      console.log("Using API key from database settings");
+    }
+
+    if (!geminiApiKey) {
+      geminiApiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY || '';
+      if (geminiApiKey) {
+        console.log("Using API key from environment variables");
+      }
     }
 
     if (!geminiApiKey) {
