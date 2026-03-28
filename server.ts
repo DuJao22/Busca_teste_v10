@@ -131,10 +131,6 @@ app.delete('/api/users/:id', authenticateToken, (req: any, res) => {
 
 // Save settings
 app.post('/api/settings', authenticateToken, (req: any, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Acesso negado' });
-  }
-  
   const { gemini_api_key } = req.body;
   
   try {
