@@ -30,7 +30,7 @@ const hash = bcrypt.hashSync('3003', 10);
 if (!adminExists) {
   db.prepare('INSERT INTO users (username, password_hash, role) VALUES (?, ?, ?)').run('DuJao', hash, 'admin');
 } else {
-  db.prepare('UPDATE users SET password_hash = ? WHERE LOWER(username) = LOWER(?)').run(hash, 'DuJao');
+  db.prepare('UPDATE users SET password_hash = ?, role = ? WHERE LOWER(username) = LOWER(?)').run(hash, 'admin', 'DuJao');
 }
 
 // --- API Routes ---
